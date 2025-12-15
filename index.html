@@ -130,6 +130,17 @@
 <button onclick="addToCart('Soda', 15)">Add Soda ($1)</button>
 <button onclick="addToCart('Snack', 5)">Add Snack ($6)</button>
 <button onclick="addToCart('Sanbusa', 1.5)">Add Sanbusa ($1.5)</button>
+
+<button onclick="addToCart('Chicken', 10)">Add Chicken ($10)</button>
+<button onclick="addToCart('Pizza', 25)">Add Pizza ($25)</button>
+<button onclick="addToCart('Burger', 15)">Add Burger ($15)</button>
+<button onclick="addToCart('Sandwich', 5)">Add Sandwich ($5)</button>
+
+<button onclick="addToCart('chips', 3)">Add chips ($3)</button>
+<button onclick="addToCart('Shawarma', 5)">Add Shawarma ($5)</button>
+<button onclick="addToCart('Soda', 15)">Add Soda ($1)</button>
+<button onclick="addToCart('Snack', 5)">Add Snack ($6)</button>
+<button onclick="addToCart('Sanbusa', 1.5)">Add Sanbusa ($1.5)</button>
 <br><br>
 
 <button onclick="printReceipt()">Generate Receipt</button>
@@ -157,14 +168,19 @@
     <div id="receipt-items"></div>
     <hr>
     <p>Sub Total: $<span id="receipt-subtotal"></span></p>
-    <p>Total Due: $<span id="receipt-total"></span></p>
+    <p>VAT (5%): $<span id="vat-tex"></span></p>
+    <p><strong>Total Due: $<span id="receipt-total"></span></strong></p>
+
     <hr>
     <p>Thank you for shopping!</p>
 </div>
 
 <script>
 let cartItems = [];
+let subtotal = 0;
+let vat = 0;
 let total = 0;
+
 
 // Prevent Enter from submitting
 document.getElementById("clientChair").addEventListener("keydown", function(e) {
@@ -189,20 +205,28 @@ function removeFromCart(name) {
 function updateCart() {
     let cartDiv = document.getElementById("cart");
     cartDiv.innerHTML = "";
-    total = 0;
+
+    subtotal = 0;
 
     cartItems.forEach(item => {
-        total += item.price * item.qty;
+        let itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+
         cartDiv.innerHTML += `
             <div class="cart-item">
-                ${item.name} x ${item.qty} — $${item.price * item.qty}
+                ${item.name} x ${item.qty} — $${itemTotal.toFixed(2)}
                 <button onclick="removeFromCart('${item.name}')">Remove</button>
             </div>
         `;
     });
 
-    document.getElementById("total").innerText = "Total: $" + total;
+    vat = subtotal * 0.05;          // 5% VAT
+    total = subtotal + vat;         // Total = Subtotal + VAT
+
+    document.getElementById("total").innerText =
+        "Total: $" + total.toFixed(2);
 }
+
 
 // Generate receipt preview
 function printReceipt() {
@@ -223,8 +247,11 @@ function printReceipt() {
         receiptDiv.innerHTML += `<p>${item.qty} ${item.name} ....... $${item.price * item.qty}</p>`;
     });
 
-    document.getElementById("receipt-subtotal").innerText = total.toFixed(2);
+    document.getElementById("receipt-subtotal").innerText = subtotal.toFixed(2);
+    document.getElementById("vat-tex").innerText = vat.toFixed(2);
+
     document.getElementById("receipt-total").innerText = total.toFixed(2);
+
 
     document.getElementById("receipt").style.display = "block";
 
@@ -259,7 +286,9 @@ function directThermalPrint() {
     });
 
     text += "------------------------------\n";
-    text += "TOTAL: $" + total.toFixed(2) + "\n";
+    text += "SUBTOTAL: $" + subtotal.toFixed(2) + "\n";
+    text += "VAT (5%): $" + vat.toFixed(2) + "\n";
+    text += "TOTAL:    $" + total.toFixed(2) + "\n";
     text += "------------------------------\n";
     text += "Thank you for shopping!\n\n\n";
 
